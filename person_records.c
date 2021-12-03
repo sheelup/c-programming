@@ -318,6 +318,3 @@ int main(){
     }
     return 0;
 }
-// #statename;
-// #stateid;
-// #contryid;
