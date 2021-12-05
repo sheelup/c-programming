@@ -21,12 +21,22 @@ typedef struct District{
     struct Country* country;
 }District;
 
+typedef struct City{
+    char cityName[20];
+    int cityId;
+    struct District* district;
+    struct State* state;
+    struct Country* country;
+}City;
+
 void showAllCountries();
 void addNewDistrict();
 void showStates();
 Country* readCountrySelection();
 State* readStateSelectionForCountry(Country* country);
 void showStateForCountry(Country* country);
+District* readDistrictSelection();
+District* readDistrictSelectionForState(State* state);
 
 Country* countries[100];
 int countriesLen = 0;
@@ -36,6 +46,73 @@ int statelen = 0;
 
 District* districts[100];
 int districtlen = 0;
+
+City* citys[100];
+int cityLen;
+
+void showCities(){
+    District* district = readDistrictSelection();
+    for(int i=0; i<cityLen; i++){
+        if(citys[i]->district->districtId == district->districtId){
+            printf("%s\t%d\n", citys[i]->cityName,citys[i]->cityId);
+        }
+    }
+    printf("**************\n\n");
+
+}
+void scanCityName(char* city, int districtId){
+    char enteredName[20];
+    bool isFound = false;
+    while (true){
+        printf("Enter City Name: ");
+        scanf("%s", enteredName);
+
+        for(int i=0; i<cityLen; i++){
+            if(citys[i]->district->districtId == districtId){
+                if(strcmp(enteredName, citys[i]->cityName) == 0){
+                    isFound = true;
+                    break;
+                }
+            }
+        }
+        if(!isFound){
+            strcpy(city,enteredName);
+            return;
+        }
+        printf("City Name is already exist!!!!!! try again\n");
+    }
+}
+
+void scanCityId(int* ptr){
+    int Id = 0;
+    bool isFound = false;
+    while (true){
+        printf("Enter city id: ");
+        scanf("%d",&Id);
+        for(int i=0; i<cityLen; i++){
+            if(*ptr == citys[i]->cityId){
+                isFound = true;
+                break;
+            }
+        }
+        if(!isFound){
+            return;
+        }
+        printf("City id is already exist!!!! try again\n");
+    }
+}
+
+void addCityName(){
+    City* city = (City*)malloc(sizeof(City));
+    city->country = readCountrySelection();
+    city->state = readStateSelectionForCountry(city->country);
+    city->district = readDistrictSelectionForState(city->state);
+    scanCityName(city->cityName, city->district->districtId);
+    scanCityId(&city->cityId);
+    citys[cityLen] = city;
+    cityLen++;
+
+}
 
 State* readStateSelectionForCountry(Country* country){
     while(true){
@@ -69,6 +146,36 @@ State* readStateSelection(){
     }
 }
 
+District* readDistrictSelection(){
+    while(true) {
+        int id = 0;
+        printf("Enter District Id: ");
+        scanf("%d", &id);
+        for(int i=0; i<districtlen; i++){
+            if(districts[i]->districtId == id){
+                return districts[i];
+            }
+        }
+        printf("Invalid Input please try again\n");
+    }       
+}
+
+District* readDistrictSelectionForState(State* state){
+    while(true){
+        int id ;
+        printf("Enter District Id: ");
+        scanf("%d", &id);
+        for(int i=0; i<districtlen; i++){
+            if(state->stateId == districts[i]->state->stateId){
+                if(districts[i]->districtId == id){
+                    return districts[i];
+                }
+            }
+        }
+        printf("Invalid Input please try again\n");
+    }
+
+}
 
 void scanDistrictName(char* ptr, int stateId){
     char districtName[20];
@@ -91,6 +198,7 @@ void scanDistrictName(char* ptr, int stateId){
         printf("District name is already exist !!! Try again\n");
     }
 }
+
 void scanDistrictId(int* id){
     while (true){
         bool isFound = false;
@@ -119,6 +227,7 @@ void addNewDistrict(){
     districtlen++;
     return;
 }
+
 void showDistrictsForState(State* state){
     printf("\n********District of State %s ********\n",state->stateName);
     for(int i=0; i<districtlen; i++){
@@ -154,6 +263,7 @@ Country* readCountrySelection(){
     }
     
 }
+
 void scanStateName(char* ptr, int countryId){
     while (true){
         char enteredStateName[20];
@@ -175,6 +285,7 @@ void scanStateName(char* ptr, int countryId){
         printf("State name is already exist ! Please try again \n");
     }
 }
+
 void scanStateId(int* ptr){
     bool isFound = false;
     while (true){
@@ -192,6 +303,7 @@ void scanStateId(int* ptr){
         printf("State id is already exist!! Please try again\n");
     }  
 }
+
 void showStates(){
     if(statelen == 0) {
         printf("No states regsitered yet!!!\n");
@@ -200,6 +312,7 @@ void showStates(){
     Country* country = readCountrySelection();
     showStateForCountry(country);
 }
+
 void addNewState(){
     if(countriesLen == 0) {
         printf("\nPlease add country first!!!\n");
@@ -212,7 +325,6 @@ void addNewState(){
     states[statelen] = s;
     statelen++;
 }
-
 
 void showStateForCountry(Country* country) {
     printf("\n******** states of %s **********\n", country->countryname);
@@ -276,12 +388,21 @@ void addNewCountry() {
 int showMenuAndReadSelection() {
     printf("1.  Add new country\n");
     printf("2.  Show all countries\n");
-    printf("3.  Add new State:\n");
-    printf("4.  Show States\n");
-    printf("5.  add new District:\n");
-    printf("6.  show Districts\n");
+    printf("3.  Add new state:\n");
+    printf("4.  Show states\n");
+    printf("5.  Add new district:\n");
+    printf("6.  Show districts\n");
+    printf("7.  Add city\n");
+    printf("8.  Show cities\n");
+    printf("9.  printCountryDetail\n");
+    printf("10. printStateDetail\n");
+    printf("11. printDistrictDetail\n");
+    printf("12. printCitydetail\n");
+
+
     printf("99. Exit\n");
     printf("Please enter option: ");
+    printf("*******************\n");
 
     
     int selectedOption;
@@ -313,6 +434,12 @@ int main(){
             case 4: showStates(); break;
             case 5: addNewDistrict(); break;
             case 6: showDistrict(); break;
+            case 7: addCityName(); break;
+            case 8: showCities(); break;
+            case 9: printCountryDetail(); break;
+            case 10:printStateDetail(); break;
+            case 11:printDistrictDetail(); break;
+            case 12:printCityDetail(); break;
             case 99: exit(0);
         }
     }
