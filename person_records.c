@@ -34,9 +34,11 @@ void addNewDistrict();
 void showStates();
 Country* readCountrySelection();
 State* readStateSelectionForCountry(Country* country);
+State* readStateSelection();
 void showStateForCountry(Country* country);
 District* readDistrictSelection();
 District* readDistrictSelectionForState(State* state);
+City* readCitySelection();
 
 Country* countries[100];
 int countriesLen = 0;
@@ -49,6 +51,46 @@ int districtlen = 0;
 
 City* citys[100];
 int cityLen;
+
+void scanCountryIdAndPrintDetail(){
+    Country* c = readCountrySelection();
+    printf("Country Detail: %s\n", CountryDetailToString(c));
+}
+
+char* CountryDetailToString(Country* c) {
+    return sprintf("{countryId: %d, countryName: %s}", c->countryId, c->countryname);
+}
+
+void printStateDetail(){
+    State* s = readStateSelection();
+    printf("State Detail: {StateId: %d, StateName: %s, CountryDetail: %s}\n",
+    s->stateId, s->stateName, CountryDetailToString(s->country));
+}
+
+void printDistrictDetail(){
+    District* d = readDistrictSelection();
+    printf("%s\t%d\t%s\t%s\n", d->districtName, d->districtId, d->state->stateName, d->state->country->countryname);
+    printf("*****\n");
+}
+
+void printCityDetail(){
+    City* c = readCitySelection();
+    printf("%s\t%d\t%s\t%s\n", c->cityName, c->cityId, c->district->districtName, c->district->state->stateName);
+}
+
+City* readCitySelection(){
+    while(true){
+        int cityId = 0;
+        printf("Enter City Id: ");
+        scanf("%d", &cityId);
+        for(int i=0; i<cityLen; i++){
+            if(cityId == citys[i]->cityId){
+                return citys[i];
+            }
+        }
+        printf("Invalid Input !!!!!!!try again\n");
+    }
+}
 
 void showCities(){
     District* district = readDistrictSelection();
@@ -84,19 +126,13 @@ void scanCityName(char* city, int districtId){
 }
 
 void scanCityId(int* ptr){
-    int Id = 0;
-    bool isFound = false;
     while (true){
         printf("Enter city id: ");
-        scanf("%d",&Id);
+        scanf("%d",ptr);
         for(int i=0; i<cityLen; i++){
             if(*ptr == citys[i]->cityId){
-                isFound = true;
-                break;
+                return;
             }
-        }
-        if(!isFound){
-            return;
         }
         printf("City id is already exist!!!! try again\n");
     }
@@ -225,7 +261,6 @@ void addNewDistrict(){
     scanDistrictId(&d->districtId);
     districts[districtlen] = d;
     districtlen++;
-    return;
 }
 
 void showDistrictsForState(State* state){
